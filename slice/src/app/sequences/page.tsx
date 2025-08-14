@@ -3,8 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, ChevronDown, Plus, Check } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function SequencesPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [openStatusModal, setOpenStatusModal] = useState<number | null>(null);
   const [openActionsModal, setOpenActionsModal] = useState<number | null>(null);
@@ -186,6 +188,13 @@ export default function SequencesPage() {
     }
   };
 
+  // Fonction pour naviguer vers les détails d'une entreprise
+  const handleRowClick = (companyName: string) => {
+    // Encoder le nom de l'entreprise pour l'URL
+    const encodedCompanyName = encodeURIComponent(companyName);
+    router.push(`/sequences/${encodedCompanyName}/table`);
+  };
+
   return (
     <div className="flex flex-col h-full bg-white px-4 pt-15 pb-4">
       {/* Header local pour le titre et contrôles - style Clay exact */}
@@ -238,6 +247,7 @@ export default function SequencesPage() {
               <div
                 key={sequence.id}
                 className="grid grid-cols-10 gap-4 px-4 py-2 hover:bg-gray-50 transition-colors group cursor-pointer"
+                onClick={() => handleRowClick(sequence.companyName)}
               >
                 <div className="col-span-3 flex items-center">
                   <div className="flex items-center gap-2">

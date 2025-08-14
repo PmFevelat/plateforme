@@ -17,8 +17,13 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
   // Pages qui ne doivent pas avoir de sidebar
   const noSidebarPages = ['/workflowbuilder', '/sourcingresult/table', '/sourcingresult/graph', '/listcontent', '/listcontent/table', '/listcontent/graph'];
   const noSidebarPrefixes = ['/workflowbuilder'];
+  
+  // Vérifier si on est sur une page de détail d'entreprise (sequences/[companyName]/table ou graph)
+  const isCompanyDetailPage = pathname.includes('/sequences/') && (pathname.endsWith('/table') || pathname.endsWith('/graph'));
+  
   const shouldShowSidebar = !noSidebarPages.includes(pathname) && 
-                          !noSidebarPrefixes.some(prefix => pathname.startsWith(prefix));
+                          !noSidebarPrefixes.some(prefix => pathname.startsWith(prefix)) &&
+                          !isCompanyDetailPage;
 
   const handleToggleSidebar = () => {
     setIsCollapsed(!isCollapsed);

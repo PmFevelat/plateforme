@@ -12,9 +12,9 @@ export function GlobalHeader() {
 
   // Synchroniser l'onglet actif avec l'URL
   useEffect(() => {
-    if (pathname === '/sourcingresult/table' || pathname === '/listcontent/table') {
+    if (pathname === '/sourcingresult/table' || pathname === '/listcontent/table' || pathname.includes('/sequences/') && pathname.endsWith('/table')) {
       setActiveTab("Table");
-    } else if (pathname === '/sourcingresult/graph' || pathname === '/listcontent/graph') {
+    } else if (pathname === '/sourcingresult/graph' || pathname === '/listcontent/graph' || pathname.includes('/sequences/') && pathname.endsWith('/graph')) {
       setActiveTab("Graph");
     }
   }, [pathname]);
@@ -39,11 +39,21 @@ export function GlobalHeader() {
       } else if (tab === "Graph") {
         router.push(`/listcontent/graph${paramString}`);
       }
+    } else if (pathname.includes('/sequences/')) {
+      // Extraire le nom de l'entreprise de l'URL
+      const pathParts = pathname.split('/');
+      const companyName = pathParts[2]; // /sequences/[companyName]/...
+      
+      if (tab === "Table") {
+        router.push(`/sequences/${companyName}/table`);
+      } else if (tab === "Graph") {
+        router.push(`/sequences/${companyName}/graph`);
+      }
     }
   };
   
   // N'afficher le header que sur les pages avec breadcrumb
-  const showHeader = pathname.startsWith('/workflowbuilder') || pathname.startsWith('/sourcingresult') || pathname.startsWith('/listcontent');
+  const showHeader = pathname.startsWith('/workflowbuilder') || pathname.startsWith('/sourcingresult') || pathname.startsWith('/listcontent') || (pathname.includes('/sequences/') && (pathname.endsWith('/table') || pathname.endsWith('/graph')));
   
   if (!showHeader) {
     return null;
@@ -96,6 +106,22 @@ export function GlobalHeader() {
           </Link>
           <span className="text-gray-400">/</span>
           <span className="font-medium text-gray-800">{listName}</span>
+        </div>
+      );
+    }
+    if (pathname.includes('/sequences/')) {
+      const pathParts = pathname.split('/');
+      const companyName = decodeURIComponent(pathParts[2] || '');
+      return (
+        <div className="flex items-center gap-1 text-xs">
+          <Link 
+            href="/sequences" 
+            className="text-gray-600 hover:text-gray-800 hover:bg-gray-200 px-1 py-0.5 rounded transition-colors cursor-pointer"
+          >
+            Sequences
+          </Link>
+          <span className="text-gray-400">/</span>
+          <span className="font-medium text-gray-800">{companyName}</span>
         </div>
       );
     }
