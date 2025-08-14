@@ -129,8 +129,8 @@ export function GlobalHeader() {
   };
 
   return (
-    <nav className={`h-12 overflow-hidden ${pathname.startsWith('/workflowbuilder') || pathname.startsWith('/sourcingresult') || pathname.startsWith('/listcontent') ? 'bg-gray-50' : 'bg-white'} flex w-full items-center gap-2 border-b border-gray-200 px-4 py-2.5`}>
-      {pathname.startsWith('/sourcingresult') || pathname.startsWith('/listcontent') ? (
+    <nav className={`h-12 overflow-hidden ${pathname.startsWith('/workflowbuilder') || pathname.startsWith('/sourcingresult') || pathname.startsWith('/listcontent') || (pathname.includes('/sequences/') && (pathname.endsWith('/table') || pathname.endsWith('/graph'))) ? 'bg-gray-50' : 'bg-white'} flex w-full items-center gap-2 border-b border-gray-200 px-4 py-2.5`}>
+      {pathname.startsWith('/sourcingresult') || pathname.startsWith('/listcontent') || (pathname.includes('/sequences/') && (pathname.endsWith('/table') || pathname.endsWith('/graph'))) ? (
         <>
           {/* Container avec position relative pour centrage absolu */}
           <div className="relative flex items-center w-full">

@@ -1,17 +1,18 @@
 "use client";
 
-import { useParams } from 'next/navigation';
+import MarketGraph from "@/components/MarketGraph";
+import EnrollmentNotification from "@/components/EnrollmentNotification";
 
 export default function CompanyDetailGraphPage() {
-  const params = useParams();
-  const companyName = decodeURIComponent(params.companyName as string);
-
   return (
     <div className="flex flex-col h-screen bg-white overflow-hidden">
-      {/* Zone blanche - Prend tout l'espace comme sourcingresult/graph */}
+      {/* Graphe du marché - identique à sourcingresult/graph */}
       <div className="flex-1 bg-white overflow-hidden">
-        {/* Zone vide intentionnellement laissée blanche */}
+        <MarketGraph />
       </div>
+      
+      {/* Notification d'enrollment */}
+      <EnrollmentNotification />
     </div>
   );
 }
