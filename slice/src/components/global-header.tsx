@@ -1,19 +1,20 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
 export function GlobalHeader() {
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState("Table");
 
   // Synchroniser l'onglet actif avec l'URL
   useEffect(() => {
-    if (pathname === '/sourcingresult/table') {
+    if (pathname === '/sourcingresult/table' || pathname === '/listcontent/table') {
       setActiveTab("Table");
-    } else if (pathname === '/sourcingresult/graph') {
+    } else if (pathname === '/sourcingresult/graph' || pathname === '/listcontent/graph') {
       setActiveTab("Graph");
     }
   }, [pathname]);
@@ -21,15 +22,28 @@ export function GlobalHeader() {
   // Gérer le changement d'onglet avec navigation
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
-    if (tab === "Table") {
-      router.push("/sourcingresult/table");
-    } else if (tab === "Graph") {
-      router.push("/sourcingresult/graph");
+    
+    // Construire l'URL avec les paramètres existants
+    const currentParams = searchParams.toString();
+    const paramString = currentParams ? `?${currentParams}` : '';
+    
+    if (pathname.startsWith('/sourcingresult')) {
+      if (tab === "Table") {
+        router.push("/sourcingresult/table");
+      } else if (tab === "Graph") {
+        router.push("/sourcingresult/graph");
+      }
+    } else if (pathname.startsWith('/listcontent')) {
+      if (tab === "Table") {
+        router.push(`/listcontent/table${paramString}`);
+      } else if (tab === "Graph") {
+        router.push(`/listcontent/graph${paramString}`);
+      }
     }
   };
   
   // N'afficher le header que sur les pages avec breadcrumb
-  const showHeader = pathname.startsWith('/workflowbuilder') || pathname.startsWith('/sourcingresult');
+  const showHeader = pathname.startsWith('/workflowbuilder') || pathname.startsWith('/sourcingresult') || pathname.startsWith('/listcontent');
   
   if (!showHeader) {
     return null;
@@ -70,12 +84,27 @@ export function GlobalHeader() {
         </div>
       );
     }
+    if (pathname.startsWith('/listcontent')) {
+      const listName = searchParams.get('name') || 'Liste inconnue';
+      return (
+        <div className="flex items-center gap-1 text-xs">
+          <Link 
+            href="/lists" 
+            className="text-gray-600 hover:text-gray-800 hover:bg-gray-200 px-1 py-0.5 rounded transition-colors cursor-pointer"
+          >
+            Lists
+          </Link>
+          <span className="text-gray-400">/</span>
+          <span className="font-medium text-gray-800">{listName}</span>
+        </div>
+      );
+    }
     return null;
   };
 
   return (
-    <nav className={`h-12 overflow-hidden ${pathname.startsWith('/workflowbuilder') || pathname.startsWith('/sourcingresult') ? 'bg-gray-50' : 'bg-white'} flex w-full items-center gap-2 border-b border-gray-200 px-4 py-2.5`}>
-      {pathname.startsWith('/sourcingresult') ? (
+    <nav className={`h-12 overflow-hidden ${pathname.startsWith('/workflowbuilder') || pathname.startsWith('/sourcingresult') || pathname.startsWith('/listcontent') ? 'bg-gray-50' : 'bg-white'} flex w-full items-center gap-2 border-b border-gray-200 px-4 py-2.5`}>
+      {pathname.startsWith('/sourcingresult') || pathname.startsWith('/listcontent') ? (
         <>
           {/* Container avec position relative pour centrage absolu */}
           <div className="relative flex items-center w-full">

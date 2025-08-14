@@ -3,8 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, ChevronDown, Plus } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function ListsPage() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [openTypeModal, setOpenTypeModal] = useState<number | null>(null);
   const [openActionsModal, setOpenActionsModal] = useState<number | null>(null);
@@ -142,6 +144,10 @@ export default function ListsPage() {
     setActionsModalPosition(null);
   };
 
+  const handleRowClick = (company: typeof companies[0]) => {
+    router.push(`/listcontent/table?id=${company.id}&name=${encodeURIComponent(company.name)}`);
+  };
+
   // Fermer avec Escape
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -230,6 +236,7 @@ export default function ListsPage() {
               <div
                 key={company.id}
                 className="grid grid-cols-8 gap-4 px-4 py-2 hover:bg-gray-50 transition-colors group cursor-pointer"
+                onClick={() => handleRowClick(company)}
               >
                 <div className="col-span-4 flex items-center">
                   <div className="flex items-center gap-2">

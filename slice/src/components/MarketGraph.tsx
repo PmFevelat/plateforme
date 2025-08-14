@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
-import { Search, X, Plus, ArrowLeft, Users, Check } from 'lucide-react';
 import MeetingDetailPanel from './MeetingDetailPanel';
 
 interface Company {
@@ -116,52 +115,9 @@ const MarketGraph: React.FC = () => {
   const [companies] = useState(() => generateCompanies());
   const [connections] = useState(() => generateConnections(companies));
   
-  // États pour la gestion des listes
-  const [showAddToListModal, setShowAddToListModal] = useState(false);
-  const [listSearchQuery, setListSearchQuery] = useState("");
-  const [selectedLists, setSelectedLists] = useState<Set<number>>(new Set());
-  const [showCreateListForm, setShowCreateListForm] = useState(false);
-  const [newListTitle, setNewListTitle] = useState("");
-  const [newListType, setNewListType] = useState<"seller" | "buyer">("seller");
-  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
-  const [showCreateListNotification, setShowCreateListNotification] = useState(false);
-  const [createdLists, setCreatedLists] = useState<Array<{id: number, name: string, count: number, type: "seller" | "buyer"}>>([]);
-  const addToListModalRef = useRef<HTMLDivElement>(null);
 
-  // Load created lists from localStorage on mount
-  useEffect(() => {
-    const savedLists = localStorage.getItem('createdLists');
-    if (savedLists) {
-      try {
-        setCreatedLists(JSON.parse(savedLists));
-      } catch (error) {
-        console.error('Error loading created lists:', error);
-      }
-    }
-  }, []);
 
-  // Available lists (combining default + created lists)
-  const availableLists = useMemo(() => {
-    const defaultLists = [
-      { id: 1, name: "Tech Prospects", count: 142, type: "seller" as const },
-      { id: 2, name: "Manufacturing Targets", count: 89, type: "buyer" as const },
-      { id: 3, name: "Healthcare Companies", count: 67, type: "seller" as const },
-      { id: 4, name: "Financial Services", count: 34, type: "buyer" as const },
-      { id: 5, name: "Retail & E-commerce", count: 156, type: "seller" as const },
-      { id: 6, name: "SaaS Startups", count: 78, type: "seller" as const }
-    ];
-    return [...defaultLists, ...createdLists];
-  }, [createdLists]);
 
-  // Filter lists based on search
-  const filteredLists = useMemo(() => {
-    if (listSearchQuery.trim() === "") {
-      return availableLists;
-    }
-    return availableLists.filter(list =>
-      list.name.toLowerCase().includes(listSearchQuery.toLowerCase())
-    );
-  }, [availableLists, listSearchQuery]);
 
   const getNodeColor = (company: Company, isSelected: boolean, isPotentialBuyer: boolean) => {
     if (isSelected) return '#3b82f6'; // Blue for selected target
@@ -178,80 +134,7 @@ const MarketGraph: React.FC = () => {
     setPotentialBuyers([]);
   }, []);
 
-  // Fonctions de gestion des listes
-  const closeAddToListModal = () => {
-    setShowAddToListModal(false);
-    setListSearchQuery("");
-    setSelectedLists(new Set());
-    setShowCreateListForm(false);
-    setNewListTitle("");
-    setNewListType("seller");
-  };
 
-  const toggleListSelection = (listId: number) => {
-    setSelectedLists(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(listId)) {
-        newSet.delete(listId);
-      } else {
-        newSet.add(listId);
-      }
-      return newSet;
-    });
-  };
-
-  const handleConfirmAddToList = () => {
-    if (!selectedCompany) return;
-    
-    console.log('Adding company to lists:', {
-      company: selectedCompany.id,
-      lists: Array.from(selectedLists)
-    });
-    
-    // Show success notification
-    setShowSuccessNotification(true);
-    setTimeout(() => setShowSuccessNotification(false), 3000);
-    
-    closeAddToListModal();
-  };
-
-  const handleShowCreateForm = () => {
-    setShowCreateListForm(true);
-  };
-
-  const handleBackToLists = () => {
-    setShowCreateListForm(false);
-    setNewListTitle("");
-    setNewListType("seller");
-  };
-
-  const handleCreateNewList = () => {
-    if (newListTitle.trim()) {
-      const newId = Math.max(...availableLists.map(l => l.id), 0) + 1;
-      const newList = {
-        id: newId,
-        name: newListTitle.trim(),
-        count: 0,
-        type: newListType
-      };
-      
-      setCreatedLists(prev => {
-        const updatedLists = [...prev, newList];
-        // Persist to localStorage for sync with /lists page
-        localStorage.setItem('createdLists', JSON.stringify(updatedLists));
-        return updatedLists;
-      });
-      
-      // Show success notification for list creation
-      setShowCreateListNotification(true);
-      setTimeout(() => setShowCreateListNotification(false), 3000);
-      
-      // Reset form and go back to list selection
-      setNewListTitle("");
-      setNewListType("seller");
-      setShowCreateListForm(false);
-    }
-  };
 
   const handleNodeClick = useCallback((company: Company) => {
     console.log('Node clicked:', company);
@@ -286,29 +169,7 @@ const MarketGraph: React.FC = () => {
     }
   }, [selectedCompany, showSidePanel, connections, companies, closeSidePanel]);
 
-  // Close with Escape
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        closeAddToListModal();
-      }
-    };
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, []);
 
-  // Close clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (addToListModalRef.current && !addToListModalRef.current.contains(e.target as Node)) {
-        closeAddToListModal();
-      }
-    };
-    if (showAddToListModal) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [showAddToListModal]);
 
   // Pré-sélectionner une cible au chargement (sans ouvrir le panel)
   useEffect(() => {
@@ -546,231 +407,12 @@ const MarketGraph: React.FC = () => {
           potentialBuyers: selectedCompany.potentialBuyers
         } : null}
         panelType="summary"
-        onAddToList={(companyId) => {
-          console.log('Add to list clicked for company:', companyId);
-          setShowAddToListModal(true);
+        onEnroll={(companyId) => {
+          if (selectedCompany) {
+            enrollCompany(selectedCompany.companyName);
+          }
         }}
       />
-
-      {/* Add to List Modal */}
-      {showAddToListModal && (
-        <>
-          {/* Overlay with blur */}
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]" onClick={closeAddToListModal} />
-          
-          {/* Modal */}
-          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-            <div
-              ref={addToListModalRef}
-              data-modal="add-to-list"
-              className="bg-white rounded-lg shadow-xl w-full max-w-sm max-h-[70vh] overflow-hidden"
-            >
-              {/* Header */}
-              <div className="px-4 py-3 border-b border-gray-200">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {showCreateListForm && (
-                      <button
-                        onClick={handleBackToLists}
-                        className="text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        <ArrowLeft className="h-4 w-4" />
-                      </button>
-                    )}
-                    <h3 className="text-base font-medium text-gray-900">
-                      {showCreateListForm ? "Create new list" : "Add to list"}
-                    </h3>
-                  </div>
-                  <button
-                    onClick={closeAddToListModal}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Content - List Selection State */}
-              {!showCreateListForm && (
-                <>
-                  {/* Search */}
-                  <div className="px-4 py-3">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="Search..."
-                        value={listSearchQuery}
-                        onChange={(e) => setListSearchQuery(e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Tab */}
-                  <div className="px-4">
-                    <div className="border-b border-gray-200">
-                      <button className="pb-2 text-sm font-medium text-gray-900 border-b-2 border-gray-900">
-                        All lists
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Lists */}
-                  <div className="px-4 py-3 max-h-48 overflow-y-auto">
-                    <div className="space-y-1">
-                      {filteredLists.map((list) => (
-                        <div
-                          key={list.id}
-                          className="flex items-center gap-2 p-2 hover:bg-gray-50 rounded-md cursor-pointer"
-                          onClick={() => toggleListSelection(list.id)}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={selectedLists.has(list.id)}
-                            onChange={(e) => {
-                              e.stopPropagation();
-                              toggleListSelection(list.id);
-                            }}
-                            className="w-3.5 h-3.5 rounded border-gray-300 text-gray-900 focus:ring-gray-500 focus:ring-1 accent-gray-900"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <span className="text-sm text-gray-900">{list.name}</span>
-                          </div>
-                          <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-100 rounded-full">
-                            <Users className="h-2.5 w-2.5 text-gray-600" />
-                            <span className="text-xs text-gray-600">{list.count}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
-                    <button
-                      onClick={handleShowCreateForm}
-                      className="text-xs text-gray-600 hover:text-gray-800 transition-colors border border-gray-300 px-2 py-1 rounded-md hover:bg-gray-50"
-                    >
-                      Create new list
-                    </button>
-                    
-                    <button
-                      onClick={handleConfirmAddToList}
-                      disabled={selectedLists.size === 0}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                        selectedLists.size > 0
-                          ? 'bg-gray-900 text-white hover:bg-gray-800'
-                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      Add to list
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {/* Content - Create List Form State */}
-              {showCreateListForm && (
-                <>
-                  {/* Form */}
-                  <div className="px-4 py-4 space-y-4">
-                    {/* Title Input */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        List title
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="Enter list title"
-                        value={newListTitle}
-                        onChange={(e) => setNewListTitle(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                      />
-                    </div>
-
-                    {/* Type Selection */}
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Type
-                      </label>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setNewListType("seller")}
-                          className={`flex-1 px-3 py-2 text-xs font-medium rounded-md transition-colors ${
-                            newListType === "seller"
-                              ? 'bg-blue-100 text-blue-800 border border-blue-300'
-                              : 'bg-gray-50 text-gray-600 border border-gray-300 hover:bg-gray-100'
-                          }`}
-                        >
-                          Seller
-                        </button>
-                        <button
-                          onClick={() => setNewListType("buyer")}
-                          className={`flex-1 px-3 py-2 text-xs font-medium rounded-md transition-colors ${
-                            newListType === "buyer"
-                              ? 'bg-green-100 text-green-800 border border-green-300'
-                              : 'bg-gray-50 text-gray-600 border border-gray-300 hover:bg-gray-100'
-                          }`}
-                        >
-                          Buyer
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-end gap-2">
-                    <button
-                      onClick={handleBackToLists}
-                      className="px-3 py-1.5 text-xs font-medium text-gray-600 hover:text-gray-800 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      onClick={handleCreateNewList}
-                      disabled={!newListTitle.trim()}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
-                        newListTitle.trim()
-                          ? 'bg-gray-900 text-white hover:bg-gray-800'
-                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                      }`}
-                    >
-                      Create list
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </>
-      )}
-
-      {/* Success Notification for Adding to List */}
-      {showSuccessNotification && (
-        <div className="fixed top-4 right-4 z-[70] bg-green-50 border border-green-200 rounded-lg shadow-lg px-4 py-3 flex items-center gap-2">
-          <div className="flex-shrink-0">
-            <Check className="h-4 w-4 text-green-600" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-green-800">Added to list successfully!</p>
-            <p className="text-xs text-green-600">Company has been added to the selected lists.</p>
-          </div>
-        </div>
-      )}
-
-      {/* Success Notification for Creating List */}
-      {showCreateListNotification && (
-        <div className="fixed top-4 right-4 z-[70] bg-green-50 border border-green-200 rounded-lg shadow-lg px-4 py-3 flex items-center gap-2">
-          <div className="flex-shrink-0">
-            <Check className="h-4 w-4 text-green-600" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-green-800">List created successfully!</p>
-            <p className="text-xs text-green-600">Your new list is now available for selection.</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

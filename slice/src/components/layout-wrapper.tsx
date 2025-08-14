@@ -15,7 +15,7 @@ export function LayoutWrapper({ children }: LayoutWrapperProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   
   // Pages qui ne doivent pas avoir de sidebar
-  const noSidebarPages = ['/workflowbuilder', '/sourcingresult/table', '/sourcingresult/graph'];
+  const noSidebarPages = ['/workflowbuilder', '/sourcingresult/table', '/sourcingresult/graph', '/listcontent', '/listcontent/table', '/listcontent/graph'];
   const noSidebarPrefixes = ['/workflowbuilder'];
   const shouldShowSidebar = !noSidebarPages.includes(pathname) && 
                           !noSidebarPrefixes.some(prefix => pathname.startsWith(prefix));

@@ -16,8 +16,6 @@ import {
   ChevronsRight,
   User,
   Search,
-  DollarSign,
-  Users,
   List,
 } from "lucide-react"
 
@@ -37,7 +35,10 @@ const data = {
       title: "Home",
       url: "/home",
       icon: Home,
+      section: "main"
     },
+  ],
+  navProspect: [
     {
       title: "Sourcing",
       url: "/sourcing",
@@ -48,15 +49,12 @@ const data = {
       url: "/lists",
       icon: List,
     },
+  ],
+  navEngage: [
     {
-      title: "Deals",
-      url: "/deals",
-      icon: DollarSign,
-    },
-    {
-      title: "Companies",
-      url: "/companies",
-      icon: Users,
+      title: "Sequences",
+      url: "/sequences",
+      icon: Workflow,
     },
   ],
   user: {
@@ -74,8 +72,8 @@ interface AppSidebarProps {
 export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const pathname = usePathname()
   
-  // Déterminer l'item actif basé sur l'URL actuelle
-  const navItemsWithActive = data.navMain.map(item => {
+  // Fonction pour déterminer si un item est actif
+  const getActiveState = (item: any) => {
     let isActive = false;
     
     // Correspondance exacte
@@ -83,7 +81,10 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
       isActive = true;
     }
     // Correspondances spéciales pour les sous-pages
-    else if (item.url === "/sourcing" && pathname === "/sourcingresult") {
+    else if (item.url === "/sourcing" && (pathname === "/sourcingresult" || pathname.startsWith("/sourcingresult/"))) {
+      isActive = true;
+    }
+    else if (item.url === "/lists" && (pathname.startsWith("/listcontent"))) {
       isActive = true;
     }
     
@@ -91,7 +92,12 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
       ...item,
       isActive
     };
-  })
+  };
+
+  // Appliquer l'état actif à toutes les sections
+  const navMainWithActive = data.navMain.map(getActiveState);
+  const navProspectWithActive = data.navProspect.map(getActiveState);
+  const navEngageWithActive = data.navEngage.map(getActiveState);
   
   return (
     <div className="relative group">
@@ -123,7 +129,42 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
 
         {/* Navigation section */}
         <div className="flex flex-1 flex-col overflow-y-auto p-4 pb-2">
-          <NavMain items={navItemsWithActive} isCollapsed={isCollapsed} />
+          <div className="space-y-4">
+            {/* Home section */}
+            <NavMain items={navMainWithActive} isCollapsed={isCollapsed} />
+            
+            {!isCollapsed && (
+              <>
+                {/* PROSPECT section */}
+                <div>
+                  <div className="px-2 mb-2">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      PROSPECT
+                    </h3>
+                  </div>
+                  <NavMain items={navProspectWithActive} isCollapsed={isCollapsed} />
+                </div>
+
+                {/* ENGAGE section */}
+                <div>
+                  <div className="px-2 mb-2">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      ENGAGE
+                    </h3>
+                  </div>
+                  <NavMain items={navEngageWithActive} isCollapsed={isCollapsed} />
+                </div>
+              </>
+            )}
+            
+            {/* En mode collapsed, afficher tous les items sans sections */}
+            {isCollapsed && (
+              <>
+                <NavMain items={navProspectWithActive} isCollapsed={isCollapsed} />
+                <NavMain items={navEngageWithActive} isCollapsed={isCollapsed} />
+              </>
+            )}
+          </div>
         </div>
 
         {/* Footer section with Settings and Profile */}

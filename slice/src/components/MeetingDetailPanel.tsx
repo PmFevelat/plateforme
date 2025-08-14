@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, ExternalLink } from 'lucide-react';
+import { X, ExternalLink, Workflow, Plus } from 'lucide-react';
 
 interface MeetingDetailPanelProps {
   isOpen: boolean;
@@ -21,9 +21,10 @@ interface MeetingDetailPanelProps {
     potentialBuyers: number;
   } | null;
   onAddToList?: (companyId: number) => void;
+  onEnroll?: (companyId: number) => void;
 }
 
-export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summary', meetingData, onAddToList }: MeetingDetailPanelProps) {
+export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summary', meetingData, onAddToList, onEnroll }: MeetingDetailPanelProps) {
   const [isFullPageOpen, setIsFullPageOpen] = useState(false);
   const [hasBeenOpened, setHasBeenOpened] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -298,18 +299,28 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
           <div className="flex gap-2 justify-end">
             <button
               onClick={onClose}
-              className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded transition-colors"
+              className="px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors"
             >
               Close
             </button>
-                  <button 
-              onClick={() => onAddToList && meetingData && onAddToList(meetingData.id)}
-              className="px-3 py-1.5 text-xs font-medium text-black bg-[#BDBBFF] hover:bg-[#A8A5FF] border-0 rounded transition-colors"
-                  >
-              Add to list
-                  </button>
-                </div>
-              </div>
+            {onAddToList && meetingData && (
+              <button 
+                onClick={() => onAddToList(meetingData.id)}
+                className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded transition-colors"
+              >
+                Add to list
+              </button>
+            )}
+            {onEnroll && meetingData && (
+              <button 
+                onClick={() => onEnroll(meetingData.id)}
+                className="px-3 py-1.5 text-xs font-medium text-black bg-[#BDBBFF] hover:bg-[#A8A5FF] border-0 rounded transition-colors"
+              >
+                Enroll
+              </button>
+            )}
+          </div>
+        </div>
         </div>
       )}
 
@@ -500,16 +511,26 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
         <div className="flex gap-2 justify-end">
           <button
                   onClick={() => setIsFullPageOpen(false)}
-                  className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-sm transition-colors"
+                  className="px-3 py-1.5 text-xs font-medium text-gray-700 hover:text-gray-900 transition-colors"
           >
             Close
           </button>
-          <button
-                  onClick={() => onAddToList && meetingData && onAddToList(meetingData.id)}
-                  className="px-3 py-1.5 text-xs font-medium text-black bg-[#BDBBFF] hover:bg-[#A8A5FF] border-0 rounded-sm transition-colors"
-          >
-                  Add to list
-          </button>
+          {onAddToList && meetingData && (
+            <button
+              onClick={() => onAddToList(meetingData.id)}
+              className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-sm transition-colors"
+            >
+              Add to list
+            </button>
+          )}
+          {onEnroll && meetingData && (
+            <button
+              onClick={() => onEnroll(meetingData.id)}
+              className="px-3 py-1.5 text-xs font-medium text-black bg-[#BDBBFF] hover:bg-[#A8A5FF] border-0 rounded-sm transition-colors"
+            >
+              Enroll
+            </button>
+          )}
         </div>
       </div>
     </div>

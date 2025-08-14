@@ -1,7 +1,7 @@
 "use client";
 
-
 import MeetingsTable from "@/components/MeetingsTable";
+import EnrollmentNotification from "@/components/EnrollmentNotification";
 
 export default function MeetingResultPage() {
   return (
@@ -17,6 +17,9 @@ export default function MeetingResultPage() {
       <div className="flex-1">
         <MeetingsTable />
       </div>
+      
+      {/* Notification d'enrollment */}
+      <EnrollmentNotification />
     </div>
   );
 } 
