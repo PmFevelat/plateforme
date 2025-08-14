@@ -20,9 +20,10 @@ interface MeetingDetailPanelProps {
     matchingScore: "high" | "medium";
     potentialBuyers: number;
   } | null;
+  onAddToList?: (companyId: number) => void;
 }
 
-export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summary', meetingData }: MeetingDetailPanelProps) {
+export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summary', meetingData, onAddToList }: MeetingDetailPanelProps) {
   const [isFullPageOpen, setIsFullPageOpen] = useState(false);
   const [hasBeenOpened, setHasBeenOpened] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -31,6 +32,12 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
   // Fermeture du panel en cliquant en dehors
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // Ne pas fermer si on clique sur la modale "Add to list"
+      const addToListModal = document.querySelector('[data-modal="add-to-list"]');
+      if (addToListModal && addToListModal.contains(event.target as Node)) {
+        return;
+      }
+      
       if (isOpen && panelRef.current && !panelRef.current.contains(event.target as Node)) {
         onClose();
       }
@@ -51,6 +58,12 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
   // Fermeture du modal full page en cliquant en dehors - ramène au panel
   useEffect(() => {
     const handleModalClickOutside = (event: MouseEvent) => {
+      // Ne pas fermer si on clique sur la modale "Add to list"
+      const addToListModal = document.querySelector('[data-modal="add-to-list"]');
+      if (addToListModal && addToListModal.contains(event.target as Node)) {
+        return;
+      }
+      
       if (isFullPageOpen && modalRef.current && !modalRef.current.contains(event.target as Node)) {
         setIsFullPageOpen(false);
         // Ne pas fermer le panel, juste le modal
@@ -102,36 +115,7 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
     }
   }, [isOpen, isFullPageOpen]);
 
-  // Injection des styles CSS pour les animations
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideInSmooth {
-        0% {
-          transform: translateX(100%);
-        }
-        100% {
-          transform: translateX(0);
-        }
-      }
-      @keyframes modalSlideIn {
-        0% {
-          opacity: 0;
-          transform: scale(0.95) translateY(-10px);
-        }
-        100% {
-          opacity: 1;
-          transform: scale(1) translateY(0);
-        }
-      }
-    `;
-    document.head.appendChild(style);
-    return () => {
-      if (document.head.contains(style)) {
-        document.head.removeChild(style);
-      }
-    };
-  }, []);
+
 
   if (!isOpen || !meetingData) return null;
 
@@ -141,21 +125,19 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
       {!isFullPageOpen && (
     <div 
           ref={panelRef}
-          className="fixed right-0 top-[50px] h-[calc(100vh-50px)] w-[32rem] bg-white border-l border-gray-200 z-50 shadow-lg flex flex-col"
+          className="fixed right-0 top-[50px] h-[calc(100vh-50px)] w-[28rem] bg-white border-l border-gray-200 z-50 shadow-lg flex flex-col transition-transform duration-300 ease-out"
       style={{
-        transform: 'translateX(0)',
-            transition: hasBeenOpened ? 'none' : 'transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-            animation: hasBeenOpened ? 'none' : 'slideInSmooth 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards'
+        transform: isOpen ? 'translateX(0)' : 'translateX(100%)'
       }}
     >
       {/* Header style Notion avec bullet points */}
-      <div className="p-4 border-b border-gray-200 flex-shrink-0">
-        <div className="flex items-center justify-between mb-3">
+      <div className="p-3 border-b border-gray-200 flex-shrink-0">
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0 bg-yellow-100">
-              <div className="w-2.5 h-2.5 rounded bg-yellow-200"></div>
+            <div className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 bg-yellow-100">
+              <div className="w-2 h-2 rounded bg-yellow-200"></div>
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">{meetingData.companyName}</h2>
+            <h2 className="text-base font-semibold text-gray-900">{meetingData.companyName}</h2>
           </div>
           <div className="flex items-center gap-1">
             <button
@@ -178,44 +160,44 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
       </div>
 
       {/* Contenu de la page d'entreprise */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-6">
+      <div className="flex-1 overflow-y-auto p-3">
+        <div className="space-y-4">
           {/* Section Company Overview */}
-          <div className="space-y-4">
-            <div className="text-sm font-medium text-gray-700">Company Overview</div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-3">
-                  <div className="flex flex-col gap-1">
+          <div className="space-y-3">
+            <div className="text-xs font-medium text-gray-700">Company Overview</div>
+            <div className="bg-gray-50 rounded-md p-3">
+              <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+                  <div className="flex flex-col gap-0.5">
                     <span className="text-xs font-medium text-gray-500">SIREN</span>
-                    <span className="text-sm font-mono text-gray-900">{meetingData.sirenNumber}</span>
+                    <span className="text-xs font-mono text-gray-900">{meetingData.sirenNumber}</span>
                   </div>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-0.5">
                     <span className="text-xs font-medium text-gray-500">Activité (NAF)</span>
-                    <span className="text-sm font-mono text-gray-900">{meetingData.nafCode}</span>
+                    <span className="text-xs font-mono text-gray-900">{meetingData.nafCode}</span>
                   </div>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-0.5">
                     <span className="text-xs font-medium text-gray-500">Location</span>
-                    <span className="text-sm text-gray-900">{meetingData.location}</span>
+                    <span className="text-xs text-gray-900">{meetingData.location}</span>
                   </div>
                   </div>
-                <div className="space-y-3">
-                  <div className="flex flex-col gap-1">
+                <div className="space-y-2">
+                  <div className="flex flex-col gap-0.5">
                     <span className="text-xs font-medium text-gray-500">CEO Age</span>
-                    <span className="text-sm text-gray-900">{meetingData.ceoAge} ans</span>
+                    <span className="text-xs text-gray-900">{meetingData.ceoAge} ans</span>
                   </div>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-0.5">
                     <span className="text-xs font-medium text-gray-500">Effectif</span>
-                    <span className="text-sm text-gray-900">{meetingData.employees}</span>
+                    <span className="text-xs text-gray-900">{meetingData.employees}</span>
                   </div>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-0.5">
                     <span className="text-xs font-medium text-gray-500">Matching Score</span>
-                    <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium w-fit ${
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium w-fit ${
                       meetingData.matchingScore === 'high' 
                         ? 'bg-green-100 text-green-800' 
                         : 'bg-orange-100 text-orange-800'
                     }`}>
-                      {meetingData.matchingScore === 'high' ? 'High' : 'Medium'}
+                      {meetingData.matchingScore === 'high' ? 'High' : 'Med'}
                     </span>
                   </div>
                 </div>
@@ -224,26 +206,26 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
           </div>
 
           {/* Section Financial Data */}
-          <div className="space-y-4">
-            <div className="text-sm font-medium text-gray-700">Financial Data</div>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex flex-col gap-1">
+          <div className="space-y-3">
+            <div className="text-xs font-medium text-gray-700">Financial Data</div>
+            <div className="bg-gray-50 rounded-md p-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-0.5">
                   <span className="text-xs font-medium text-gray-500">Revenue</span>
-                  <span className="text-lg font-semibold text-gray-900">{meetingData.revenue}</span>
+                  <span className="text-sm font-semibold text-gray-900">{meetingData.revenue}</span>
                 </div>
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-0.5">
                   <span className="text-xs font-medium text-gray-500">EBE</span>
-                  <span className="text-lg font-semibold text-gray-900">{meetingData.ebe}</span>
+                  <span className="text-sm font-semibold text-gray-900">{meetingData.ebe}</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* Section Potential Buyers */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-medium text-gray-700">Potential Buyers ({meetingData.potentialBuyers})</div>
+              <div className="text-xs font-medium text-gray-700">Potential Buyers ({meetingData.potentialBuyers})</div>
                     <button 
                 onClick={() => alert('View all potential buyers')}
                 className="text-[#6D28D9] hover:text-[#5B21B6] text-xs font-medium transition-colors"
@@ -251,61 +233,61 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
                 View more
                     </button>
             </div>
-          <div className="space-y-3">
+          <div className="space-y-2">
               {/* Shortlist de 3 potential buyers */}
-              <div className="bg-white border border-gray-200 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
+              <div className="bg-white border border-gray-200 rounded-md p-2">
+                <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
                       <span className="text-xs font-medium text-blue-600">AB</span>
             </div>
                     <div>
-                      <div className="text-sm font-medium text-gray-900">Acme Corp</div>
-                      <div className="text-xs text-gray-500">Technology • Paris, France</div>
+                      <div className="text-xs font-medium text-gray-900">Acme Corp</div>
+                      <div className="text-xs text-gray-500">Technology • Paris</div>
                 </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs font-medium text-green-600">95% match</div>
-                    <div className="text-xs text-gray-500">€50M revenue</div>
+                    <div className="text-xs font-medium text-green-600">95%</div>
+                    <div className="text-xs text-gray-500">€50M</div>
                   </div>
           </div>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
+              <div className="bg-white border border-gray-200 rounded-md p-2">
+                <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
                       <span className="text-xs font-medium text-green-600">GS</span>
-              </div>
-               <div>
-                      <div className="text-sm font-medium text-gray-900">Global Solutions</div>
-                      <div className="text-xs text-gray-500">Software • Berlin, Germany</div>
-        </div>
+                    </div>
+                    <div>
+                      <div className="text-xs font-medium text-gray-900">Global Solutions</div>
+                      <div className="text-xs text-gray-500">Software • Berlin</div>
+                    </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-xs font-medium text-green-600">88% match</div>
-                    <div className="text-xs text-gray-500">€35M revenue</div>
-                   </div>
-          </div>
-        </div>
-
-              <div className="bg-white border border-gray-200 rounded-lg p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                      <span className="text-xs font-medium text-purple-600">IT</span>
-              </div>
-              <div>
-                      <div className="text-sm font-medium text-gray-900">InnoTech Partners</div>
-                      <div className="text-xs text-gray-500">Consulting • Amsterdam, NL</div>
-              </div>
-            </div>
-                  <div className="text-right">
-                    <div className="text-xs font-medium text-orange-600">82% match</div>
-                    <div className="text-xs text-gray-500">€28M revenue</div>
-            </div>
+                    <div className="text-xs font-medium text-green-600">88%</div>
+                    <div className="text-xs text-gray-500">€35M</div>
                   </div>
                 </div>
+              </div>
+
+              <div className="bg-white border border-gray-200 rounded-md p-2">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-medium text-purple-600">IT</span>
+                    </div>
+                    <div>
+                      <div className="text-xs font-medium text-gray-900">InnoTech Partners</div>
+                      <div className="text-xs text-gray-500">Consulting • Amsterdam</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-xs font-medium text-orange-600">82%</div>
+                    <div className="text-xs text-gray-500">€28M</div>
+                  </div>
+                </div>
+              </div>
               </div>
             </div>
           </div>
@@ -321,10 +303,10 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
               Close
             </button>
                   <button 
-              onClick={() => alert('Contact this company')}
-              className="px-3 py-1.5 text-xs font-medium text-white bg-[#6D28D9] hover:bg-[#5B21B6] border-0 rounded transition-colors"
+              onClick={() => onAddToList && meetingData && onAddToList(meetingData.id)}
+              className="px-3 py-1.5 text-xs font-medium text-black bg-[#BDBBFF] hover:bg-[#A8A5FF] border-0 rounded transition-colors"
                   >
-              Contact Company
+              Add to list
                   </button>
                 </div>
               </div>
@@ -523,10 +505,10 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
             Close
           </button>
           <button
-                  onClick={() => alert('Contact this company')}
-                  className="px-3 py-1.5 text-xs font-medium text-white bg-[#6D28D9] hover:bg-[#5B21B6] border-0 rounded-sm transition-colors"
+                  onClick={() => onAddToList && meetingData && onAddToList(meetingData.id)}
+                  className="px-3 py-1.5 text-xs font-medium text-black bg-[#BDBBFF] hover:bg-[#A8A5FF] border-0 rounded-sm transition-colors"
           >
-                  Contact Company
+                  Add to list
           </button>
         </div>
       </div>

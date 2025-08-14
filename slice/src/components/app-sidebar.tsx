@@ -18,6 +18,7 @@ import {
   Search,
   DollarSign,
   Users,
+  List,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -41,6 +42,11 @@ const data = {
       title: "Sourcing",
       url: "/sourcing",
       icon: Search,
+    },
+    {
+      title: "Lists",
+      url: "/lists",
+      icon: List,
     },
     {
       title: "Deals",
