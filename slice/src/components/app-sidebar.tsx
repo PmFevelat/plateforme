@@ -17,6 +17,8 @@ import {
   User,
   Search,
   List,
+  Handshake,
+  Building,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -55,6 +57,18 @@ const data = {
       title: "Sequences",
       url: "/sequences",
       icon: Workflow,
+    },
+  ],
+  navRecord: [
+    {
+      title: "Deals",
+      url: "/deals",
+      icon: Handshake,
+    },
+    {
+      title: "Companies",
+      url: "/companies",
+      icon: Building,
     },
   ],
   user: {
@@ -98,6 +112,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const navMainWithActive = data.navMain.map(getActiveState);
   const navProspectWithActive = data.navProspect.map(getActiveState);
   const navEngageWithActive = data.navEngage.map(getActiveState);
+  const navRecordWithActive = data.navRecord.map(getActiveState);
   
   return (
     <div className="relative group">
@@ -154,6 +169,16 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
                   </div>
                   <NavMain items={navEngageWithActive} isCollapsed={isCollapsed} />
                 </div>
+
+                {/* RECORD section */}
+                <div>
+                  <div className="px-2 mb-2">
+                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      RECORD
+                    </h3>
+                  </div>
+                  <NavMain items={navRecordWithActive} isCollapsed={isCollapsed} />
+                </div>
               </>
             )}
             
@@ -162,6 +187,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
               <>
                 <NavMain items={navProspectWithActive} isCollapsed={isCollapsed} />
                 <NavMain items={navEngageWithActive} isCollapsed={isCollapsed} />
+                <NavMain items={navRecordWithActive} isCollapsed={isCollapsed} />
               </>
             )}
           </div>
