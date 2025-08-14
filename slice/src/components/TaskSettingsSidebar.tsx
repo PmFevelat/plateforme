@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, AlertCircle, Plus, Trash2, Calendar, User } from 'lucide-react';
+import { X, AlertCircle, Calendar } from 'lucide-react';
 
 interface TaskSetting {
   id: string;
@@ -151,24 +151,24 @@ export default function TaskSettingsSidebar({
     }
   }, [editingField]);
 
-  const handleAddTask = () => {
-    const newTask: TaskSetting = {
-      id: Date.now().toString(),
-      taskName: 'New task',
-      assignees: initialRecipients.length > 0 ? initialRecipients : ['john.doe@company.com'],
-      dueDate: (() => {
-        const date = new Date();
-        date.setDate(date.getDate() + 3);
-        return date.toISOString().split('T')[0];
-      })(),
-      priority: 'medium'
-    };
-    setTaskSettings(prev => [...prev, newTask]);
-  };
+  // const handleAddTask = () => {
+  //   const newTask: TaskSetting = {
+  //     id: Date.now().toString(),
+  //     taskName: 'New task',
+  //     assignees: initialRecipients.length > 0 ? initialRecipients : ['john.doe@company.com'],
+  //     dueDate: (() => {
+  //       const date = new Date();
+  //       date.setDate(date.getDate() + 3);
+  //       return date.toISOString().split('T')[0];
+  //     })(),
+  //     priority: 'medium'
+  //   };
+  //   setTaskSettings(prev => [...prev, newTask]);
+  // };
 
-  const handleRemoveTask = (id: string) => {
-    setTaskSettings(prev => prev.filter(task => task.id !== id));
-  };
+  // const handleRemoveTask = (id: string) => {
+  //   setTaskSettings(prev => prev.filter(task => task.id !== id));
+  // };
 
   const handleUpdateTask = (id: string, updates: Partial<TaskSetting>) => {
     setTaskSettings(prev => 
@@ -276,7 +276,7 @@ export default function TaskSettingsSidebar({
 
       {/* Settings area */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-        {taskSettings.map((task, index) => (
+        {taskSettings.map((task) => (
           <div key={task.id} className="border border-gray-200 p-3 space-y-3">
 
             {/* Task Name */}

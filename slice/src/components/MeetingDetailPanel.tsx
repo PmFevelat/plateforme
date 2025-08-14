@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, ExternalLink, Workflow, Plus } from 'lucide-react';
+import { X, ExternalLink } from 'lucide-react';
 
 interface MeetingDetailPanelProps {
   isOpen: boolean;
@@ -24,9 +24,9 @@ interface MeetingDetailPanelProps {
   onEnroll?: (companyId: number) => void;
 }
 
-export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summary', meetingData, onAddToList, onEnroll }: MeetingDetailPanelProps) {
+export default function MeetingDetailPanel({ isOpen, onClose, meetingData, onAddToList, onEnroll }: MeetingDetailPanelProps) {
   const [isFullPageOpen, setIsFullPageOpen] = useState(false);
-  const [hasBeenOpened, setHasBeenOpened] = useState(false);
+  // const [hasBeenOpened, setHasBeenOpened] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -105,14 +105,14 @@ export default function MeetingDetailPanel({ isOpen, onClose, panelType = 'summa
   useEffect(() => {
     if (!isOpen) {
       setIsFullPageOpen(false);
-      setHasBeenOpened(false);
+      // setHasBeenOpened(false);
     }
   }, [isOpen]);
 
   // Marquer comme ouvert une fois que le panel est affiché
   useEffect(() => {
     if (isOpen && !isFullPageOpen) {
-      setHasBeenOpened(true);
+      // setHasBeenOpened(true);
     }
   }, [isOpen, isFullPageOpen]);
 

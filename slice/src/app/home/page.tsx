@@ -6,7 +6,6 @@ import {
   Plus,
   Calendar,
   FileText,
-  Search,
   ChevronDown
 } from "lucide-react";
 

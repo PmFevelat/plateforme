@@ -6,12 +6,8 @@ import Link from "next/link"
 import {
   GalleryVerticalEnd,
   Workflow,
-  Calendar,
-  CheckSquare,
   Settings,
   Home,
-  ChevronLeft,
-  ChevronRight,
   ChevronsLeft,
   ChevronsRight,
   User,
@@ -19,6 +15,7 @@ import {
   List,
   Handshake,
   Building,
+  type LucideIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -87,7 +84,7 @@ export function AppSidebar({ isCollapsed = false, onToggle }: AppSidebarProps) {
   const pathname = usePathname()
   
   // Fonction pour déterminer si un item est actif
-  const getActiveState = (item: any) => {
+  const getActiveState = (item: { title: string; url: string; icon?: LucideIcon; section?: string }) => {
     let isActive = false;
     
     // Correspondance exacte

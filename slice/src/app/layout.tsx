@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+// import { Inter } from "next/font/google";
 import "./globals.css";
 // import { StagewiseToolbar } from "@stagewise/toolbar-next";
 import { LayoutWrapper } from "@/components/layout-wrapper";
 
-const inter = Inter({ 
-  subsets: ["latin"],
-  display: 'swap',
-  variable: '--font-inter',
-  preload: true,
-  fallback: ['system-ui', 'arial']
-});
+// const inter = Inter({ 
+//   subsets: ["latin"],
+//   display: 'swap',
+//   variable: '--font-inter',
+//   preload: true,
+//   fallback: ['system-ui', 'arial']
+// });
 
 // const stagewiseConfig = {
 //   plugins: []

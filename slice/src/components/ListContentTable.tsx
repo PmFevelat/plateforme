@@ -11,7 +11,7 @@ import {
   ColumnFiltersState,
   flexRender,
 } from '@tanstack/react-table';
-import { Calendar, Building, Play, Plus, ChevronDown, X, Search, Users, ArrowLeft, Check, Trash2, Workflow } from 'lucide-react';
+import { Building, X, Check, Trash2, Workflow } from 'lucide-react';
 import MeetingDetailPanel from './MeetingDetailPanel';
 import { enrollCompany } from '@/lib/enrollment';
 
@@ -42,7 +42,7 @@ export default function ListContentTable({ listId, listName }: ListContentTableP
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number } | null>(null);
   const [selectedCompany, setSelectedCompany] = useState<CompanyData | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const [panelType, setPanelType] = useState<'summary' | 'questions' | 'email' | 'review' | 'notify' | 'teamfollowup'>('summary');
+  // const [panelType, setPanelType] = useState<'summary' | 'questions' | 'email' | 'review' | 'notify' | 'teamfollowup'>('summary');
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   const [showDeleteConfirmModal, setShowDeleteConfirmModal] = useState(false);
   const [showSuccessNotification, setShowSuccessNotification] = useState(false);
@@ -125,14 +125,14 @@ export default function ListContentTable({ listId, listName }: ListContentTableP
     { id: 'sales-summary', name: 'Sales Summary', description: 'Generate comprehensive summary' }
   ];
 
-  const openModal = (callId: number, event: React.MouseEvent) => {
-    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
-    setModalPosition({
-      top: rect.top - 200,
-      left: rect.left
-    });
-    setOpenWorkflowModal(callId);
-  };
+  // const openModal = (callId: number, event: React.MouseEvent) => {
+  //   const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  //   setModalPosition({
+  //     top: rect.top - 200,
+  //     left: rect.left
+  //   });
+  //   setOpenWorkflowModal(callId);
+  // };
 
   const closeModal = () => {
     setOpenWorkflowModal(null);
@@ -141,14 +141,14 @@ export default function ListContentTable({ listId, listName }: ListContentTableP
 
   const handleRowClick = (company: CompanyData) => {
     setSelectedCompany(company);
-    setPanelType('summary'); // Default to summary for row clicks
+    // setPanelType('summary'); // Default to summary for row clicks
     setIsPanelOpen(true);
   };
 
   const handleCellClick = (company: CompanyData, cellType: 'summary' | 'questions' | 'email' | 'review' | 'notify' | 'teamfollowup', event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent row click
     setSelectedCompany(company);
-    setPanelType(cellType);
+    // setPanelType(cellType);
     setIsPanelOpen(true);
   };
 
@@ -618,7 +618,7 @@ export default function ListContentTable({ listId, listName }: ListContentTableP
           isOpen={isPanelOpen}
           onClose={closePanelModal}
           meetingData={selectedCompany}
-          panelType={panelType}
+          panelType="summary"
           onEnroll={(companyId) => {
             const company = companies.find(c => c.id === companyId);
             if (company) {
@@ -649,7 +649,7 @@ export default function ListContentTable({ listId, listName }: ListContentTableP
                 {/* Content */}
                 <div className="px-6 py-4">
                   <p className="text-sm text-gray-600">
-                    Are you sure you want to delete {selectedRows.size} compan{selectedRows.size > 1 ? 'ies' : 'y'} from the list "{listName}"?
+                    Are you sure you want to delete {selectedRows.size} compan{selectedRows.size > 1 ? 'ies' : 'y'} from the list &quot;{listName}&quot;?
                   </p>
                   <p className="text-sm text-gray-500 mt-2">
                     This action cannot be undone.

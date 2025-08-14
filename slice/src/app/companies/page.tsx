@@ -5,6 +5,24 @@ import { Plus, Search, ChevronDown } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+interface Company {
+  id: number;
+  name: string;
+  type?: string;
+  status?: string;
+  industry?: string;
+  location?: string;
+  revenue?: string;
+  employees?: string;
+  lastInteraction?: string;
+  latestContact?: string;
+  dealStage?: string;
+  dealValue?: string;
+  dealType?: string;
+  probability?: number;
+  isNew?: boolean;
+}
+
 export default function CompaniesPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
@@ -85,7 +103,7 @@ export default function CompaniesPage() {
     }
   ]);
 
-  const [filteredCompanies, setFilteredCompanies] = useState(knownCompanies);
+  const [filteredCompanies, setFilteredCompanies] = useState<Company[]>(knownCompanies);
   const [isSearching, setIsSearching] = useState(false);
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -119,7 +137,7 @@ export default function CompaniesPage() {
     console.log("Searching for:", searchQuery);
   };
 
-  const handleStatusClick = (company: typeof knownCompanies[0], event: React.MouseEvent) => {
+  const handleStatusClick = (company: Company, event: React.MouseEvent) => {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     setModalPosition({
       top: rect.bottom + window.scrollY,
@@ -133,7 +151,7 @@ export default function CompaniesPage() {
     setModalPosition(null);
   };
 
-  const handleActionsClick = (company: any, event: React.MouseEvent) => {
+  const handleActionsClick = (company: Company, event: React.MouseEvent) => {
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     setActionsModalPosition({
       top: rect.bottom + window.scrollY,
@@ -307,7 +325,7 @@ export default function CompaniesPage() {
                   <p className="text-gray-500 text-sm">No companies found matching your search</p>
                 </div>
               ) : (
-                filteredCompanies.map((company: any) => (
+                filteredCompanies.map((company: Company) => (
                 <div
                   key={company.id}
                   className={`grid gap-4 px-4 py-2 hover:bg-gray-50 transition-colors group cursor-pointer ${
@@ -340,8 +358,8 @@ export default function CompaniesPage() {
                   )}
                   
                   <div className="col-span-2 flex items-center">
-                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${getTypeColor(company.type)}`}>
-                      {company.type}
+                    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium ${getTypeColor(company.type || 'Unknown')}`}>
+                      {company.type || 'Unknown'}
                     </span>
                   </div>
                   
@@ -352,9 +370,9 @@ export default function CompaniesPage() {
                           event.stopPropagation();
                           handleStatusClick(company, event);
                         }}
-                        className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium hover:opacity-80 transition-colors ${getStatusColor(company.status)}`}
+                        className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium hover:opacity-80 transition-colors ${getStatusColor(company.status || 'Unknown')}`}
                       >
-                        {company.status}
+                        {company.status || 'Unknown'}
                         <ChevronDown className="ml-1 h-3 w-3" />
                       </button>
                     </div>

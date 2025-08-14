@@ -2,9 +2,9 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 
-export function GlobalHeader() {
+function GlobalHeaderContent() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -191,5 +191,13 @@ export function GlobalHeader() {
         </>
       )}
     </nav>
+  );
+}
+
+export function GlobalHeader() {
+  return (
+    <Suspense fallback={<div className="h-12 bg-white border-b border-gray-200" />}>
+      <GlobalHeaderContent />
+    </Suspense>
   );
 } 

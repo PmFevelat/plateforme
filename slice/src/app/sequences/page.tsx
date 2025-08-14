@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Search, ChevronDown, Plus, Check } from "lucide-react";
-import Link from "next/link";
+import { Search, ChevronDown, Plus } from "lucide-react";
+// import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function SequencesPage() {

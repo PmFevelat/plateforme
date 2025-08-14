@@ -1,14 +1,14 @@
 "use client";
 
-import { useSearchParams } from 'next/navigation';
+// import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import MarketGraph from "@/components/MarketGraph";
 import EnrollmentNotification from "@/components/EnrollmentNotification";
 
 function ListContentGraphPageContent() {
-  const searchParams = useSearchParams();
-  const listName = searchParams.get('name') || 'Liste inconnue';
-  const listId = searchParams.get('id') || '0';
+  // const searchParams = useSearchParams();
+  // const listName = searchParams.get('name') || 'Liste inconnue';
+  // const listId = searchParams.get('id') || '0';
 
   return (
     <div className="flex flex-col h-screen bg-white overflow-hidden">

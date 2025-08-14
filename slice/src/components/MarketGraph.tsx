@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as d3 from 'd3';
 import MeetingDetailPanel from './MeetingDetailPanel';
+import { enrollCompany } from '@/lib/enrollment';
 
 interface Company {
   id: string;
@@ -198,26 +199,28 @@ const MarketGraph: React.FC = () => {
       .select('circle')
       .transition()
       .duration(300)
-      .attr('fill', (d: Company) => {
-        // Vérifier que d existe avant de l'utiliser
-        if (!d || !d.id) {
+      .attr('fill', (d) => {
+        const data = d as { id?: number; [key: string]: unknown };
+        // Vérifier que data existe avant de l'utiliser
+        if (!data || !data.id) {
           return '#9ca3af'; // Couleur grise par défaut
         }
-        return getNodeColor(d, 
-          selectedCompany?.id === d.id,
-          potentialBuyers.some(buyer => buyer.id === d.id)
+        return getNodeColor(data as unknown as Company, 
+          String(selectedCompany?.id) === String(data.id),
+          potentialBuyers.some(buyer => String(buyer.id) === String(data.id))
         );
       });
 
     // Mettre à jour les curseurs
     container.selectAll('g')
-      .attr('cursor', (d: Company) => {
-        // Vérifier que d existe et a les propriétés nécessaires
-        if (!d || !d.type || !d.id) {
+      .attr('cursor', (d) => {
+        const data = d as unknown as Company;
+        // Vérifier que data existe et a les propriétés nécessaires
+        if (!data || !data.type || !data.id) {
           return 'move';
         }
         // Seule la target company sélectionnée est cliquable
-        if (d.type === 'target' && selectedCompany && d.id === selectedCompany.id) {
+        if (data.type === 'target' && selectedCompany && String(data.id) === String(selectedCompany.id)) {
           return 'pointer';
         }
         return 'move';
@@ -227,9 +230,10 @@ const MarketGraph: React.FC = () => {
     container.selectAll('line')
       .transition()
       .duration(300)
-      .attr('stroke-opacity', (d: Connection) => 
-        selectedCompany && d.source === selectedCompany.id ? 0.4 : 0
-      );
+      .attr('stroke-opacity', (d) => {
+        const connection = d as unknown as Connection;
+        return selectedCompany && connection.source === selectedCompany.id ? 0.4 : 0;
+      });
   }, [selectedCompany, potentialBuyers]);
 
   useEffect(() => {
@@ -329,10 +333,10 @@ const MarketGraph: React.FC = () => {
     // Update simulation - stopper rapidement
     simulation.on('tick', () => {
       link
-        .attr('x1', (d: Connection) => (d.source as Company).x || 0)
-        .attr('y1', (d: Connection) => (d.source as Company).y || 0)
-        .attr('x2', (d: Connection) => (d.target as Company).x || 0)
-        .attr('y2', (d: Connection) => (d.target as Company).y || 0);
+        .attr('x1', (d: Connection) => (d.source as unknown as Company).x || 0)
+        .attr('y1', (d: Connection) => (d.source as unknown as Company).y || 0)
+        .attr('x2', (d: Connection) => (d.target as unknown as Company).x || 0)
+        .attr('y2', (d: Connection) => (d.target as unknown as Company).y || 0);
 
       node.attr('transform', (d: Company) => `translate(${d.x},${d.y})`);
     });
@@ -407,7 +411,7 @@ const MarketGraph: React.FC = () => {
           potentialBuyers: selectedCompany.potentialBuyers
         } : null}
         panelType="summary"
-        onEnroll={(companyId) => {
+        onEnroll={() => {
           if (selectedCompany) {
             enrollCompany(selectedCompany.companyName);
           }

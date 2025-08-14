@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Search, ChevronDown, Plus } from "lucide-react";
-import Link from "next/link";
+// import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function ListsPage() {
@@ -52,7 +52,7 @@ export default function ListsPage() {
       if (savedLists) {
         try {
           const createdLists = JSON.parse(savedLists);
-          const newCompanies = createdLists.map((list: any) => ({
+          const newCompanies = createdLists.map((list: { id: number; name: string; type: string; count: number }) => ({
             id: list.id + 1000, // Offset to avoid ID conflicts
             name: list.name,
             type: list.type,
